@@ -20,7 +20,7 @@ if !exists("g:shfmt_fmt_on_save")
 endif
 
 if !exists('g:shfmt_cmd')
-	let g:shfmt_cmd = 'shfmt -w'
+	let g:shfmt_cmd = 'shfmt'
 endif
 
 " Options
@@ -34,16 +34,52 @@ function! s:ShfmtSwitches(...)
 	return join(s:shfmt_switches, "\n")
 endfunction
 
+" Ref: 'rhysd/vim-clang-format' /autoload/clang_format.vim
+function! s:has_vimproc() abort
+	if !exists('s:exists_vimproc')
+		try
+			silent call vimproc#version()
+			let s:exists_vimproc = 1
+		catch
+			let s:exists_vimproc = 0
+		endtry
+	endif
+	return s:exists_vimproc
+endfunction
+function! s:success(result) abort
+	let exit_success = (s:has_vimproc() ? vimproc#get_last_status() : v:shell_error) == 0
+	return exit_success
+endfunction
+
+function! s:error_message(result) abort
+	echohl ErrorMsg
+	echomsg 'shfmt has failed to format.'
+	for l in split(a:result, "\n")[0:1]
+		echomsg l
+	endfor
+	echomsg ''
+	echomsg ''
+	echohl None
+endfunction
+
+let g:cnt = 0
 function! s:Shfmt(current_args)
 	let l:extra_args = g:shfmt_extra_args
-	let l:filename = @%
 	let l:shfmt_cmd = g:shfmt_cmd
 	let l:shfmt_opts = ' ' . a:current_args . ' ' . l:extra_args
 	if a:current_args != ''
 		let l:shfmt_opts = a:current_args
 	endif
-	let l:shfmt_output = system(l:shfmt_cmd . ' ' . l:shfmt_opts . ' ' . l:filename)
-	edit!
+	let l:source = join(getline(1, '$'), "\n")
+	let l:shfmt_output = system(l:shfmt_cmd . ' ' . l:shfmt_opts, l:source)
+	if s:success(l:shfmt_output)
+		let l:view = winsaveview()
+		call setreg('g', l:shfmt_output, 'V')
+		silent keepjumps normal! gg0VG"gp
+		silent call winrestview(l:view)
+	else
+		call s:error_message(l:shfmt_output)
+	endif
 endfunction
 
 augroup shfmt
