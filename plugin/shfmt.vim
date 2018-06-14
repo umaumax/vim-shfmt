@@ -95,6 +95,6 @@ augroup shfmt
 	endif
 augroup END
 
-command! -complete=custom,s:ShfmtSwitches -nargs=? Shfmt :call <SID>Shfmt(<q-args>)
+command! -bar -complete=custom,s:ShfmtSwitches -nargs=? Shfmt :call <SID>Shfmt(<q-args>)
 
 let &cpo = s:save_cpo
