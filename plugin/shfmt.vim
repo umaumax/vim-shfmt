@@ -74,8 +74,13 @@ function! s:Shfmt(current_args)
 	let l:shfmt_output = system(l:shfmt_cmd . ' ' . l:shfmt_opts, l:source)
 	if s:success(l:shfmt_output)
 		let l:view = winsaveview()
+		" NOTE: VISUAL BLOCKの機能でregが上書きされてしまうので，
+		" もとに戻す処理を追加したが，不完全
+		let tmp=@+
 		call setreg('g', l:shfmt_output, 'V')
 		silent keepjumps normal! gg0VG"gp
+		let @+=tmp
+		let @"=tmp
 		silent call winrestview(l:view)
 	else
 		call s:error_message(l:shfmt_output)
