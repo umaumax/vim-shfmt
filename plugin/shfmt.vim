@@ -74,8 +74,9 @@ function! s:Shfmt(current_args)
 	let l:shfmt_output = system(l:shfmt_cmd . ' ' . l:shfmt_opts, l:source)
 	if s:success(l:shfmt_output)
 		let l:view = winsaveview()
-		call setreg('g', l:shfmt_output, 'V')
-		silent keepjumps normal! gg0VG"_d"gPG"_dd
+		let l:n=strlen(l:shfmt_output)
+		normal! ggVG"_x
+		call setline(1,split(l:shfmt_output, "\n"))
 		silent call winrestview(l:view)
 	else
 		call s:error_message(l:shfmt_output)
