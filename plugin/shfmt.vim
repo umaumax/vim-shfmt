@@ -73,11 +73,16 @@ function! s:Shfmt(current_args)
 	let l:source = join(getline(1, '$'), "\n")
 	let l:shfmt_output = system(l:shfmt_cmd . ' ' . l:shfmt_opts, l:source)
 	if s:success(l:shfmt_output)
-		let l:view = winsaveview()
-		let l:n=strlen(l:shfmt_output)
-		normal! ggVG"_x
-		call setline(1,split(l:shfmt_output, "\n"))
-		silent call winrestview(l:view)
+		let pos_save = a:0 >= 1 ? a:1 : getpos('.')
+		let winview = winsaveview()
+		let splitted = split(l:shfmt_output, '\n')
+		silent! undojoin
+		if line('$') > len(splitted)
+			execute len(splitted) .',$delete' '_'
+		endif
+		call setline(1, splitted)
+		call winrestview(winview)
+		call setpos('.', pos_save)
 	else
 		call s:error_message(l:shfmt_output)
 	endif
