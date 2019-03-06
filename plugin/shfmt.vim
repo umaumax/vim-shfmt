@@ -54,8 +54,8 @@ endfunction
 function! s:error_message(result) abort
 	echohl ErrorMsg
 	echomsg 'shfmt has failed to format.'
-	for l in split(a:result, "\n")[0:1]
-		echomsg l
+	for message in split(a:result, "\n")[0:1]
+		echomsg message
 	endfor
 	echomsg ''
 	echomsg ''
