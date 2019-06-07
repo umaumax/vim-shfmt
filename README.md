@@ -1,5 +1,9 @@
 # Vim plugin for shfmt
 
+__USE [umaumax/vim\-format: vim plugin for misc files formatting]( https://github.com/umaumax/vim-format )__
+
+----
+
 The **Vim shfmt** plugin runs [shfmt](https://github.com/mvdan/sh) to auto format the current buffer
 
 ## Requirements
